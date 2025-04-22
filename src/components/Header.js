@@ -56,7 +56,7 @@ export default function Header({ setActiveSection, setShowLoginModal }) {
             className="text-2xl font-bold text-teal-700 cursor-pointer" 
             onClick={() => setActiveSection('home')}
           >
-            Winnie & Umar
+            Winnie & Omar
           </h1>
         </div>
         

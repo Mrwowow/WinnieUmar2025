@@ -156,7 +156,7 @@ export default function BridalPartyForm() {
     <div className="max-w-2xl mx-auto p-4 bg-white rounded-lg shadow-md">
       <div className="mb-6 text-center">
         <h2 className="text-3xl font-bold text-teal-800">Reg Form</h2>
-        <p className="text-gray-600 mt-2">Please complete this form to join Winnie & Umar&apos;s Bridal Train and Grooms men</p>
+        <p className="text-gray-600 mt-2">Please complete this form to join Winnie & Omar&apos;s Bridal Train and Grooms men</p>
       </div>
       
       {showSuccess && (

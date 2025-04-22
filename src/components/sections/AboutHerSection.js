@@ -10,7 +10,7 @@ export default function AboutHerSection() {
           <div className="bg-gray-200 h-96 rounded-lg overflow-hidden relative">
             {/* In a real app, this would be an actual image */}
             <Image 
-              src="/images/umarwinnie4.jpeg" 
+              src="images/Omarwinnie4.jpeg" 
               alt="Winnie" 
               layout="fill" 
               objectFit="cover" 
@@ -22,7 +22,7 @@ export default function AboutHerSection() {
             Winnie is a pediatric nurse with a heart of gold. Originally from Portland, she moved to Seattle to pursue her career and fell in love with the city and its people.
           </p>
           <p className="text-lg text-gray-700 mb-6">
-            She&apos;s an avid reader, coffee enthusiast, and loves to travel. Winnie knew Umar was the one when he surprised her with tickets to Paris for her birthday.
+            She&apos;s an avid reader, coffee enthusiast, and loves to travel. Winnie knew Omar was the one when he surprised her with tickets to Paris for her birthday.
           </p>
           <p className="text-lg text-gray-700">
             Her favorite quote: &quot;In a world full of people, you can find yourself lost. But when you find that special someone, suddenly the world makes sense.&quot;

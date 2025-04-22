@@ -15,7 +15,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Winnie & Umar&apos;s Wedding</title>
+        <title>Winnie & Omar&apos;s Wedding</title>
         <meta name="description" content="Join us to celebrate our special day" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

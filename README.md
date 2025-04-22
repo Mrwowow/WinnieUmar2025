@@ -1,6 +1,6 @@
 # Wedding Web App
 
-A beautiful, modern Next.js web application for Winnie and Umar's wedding, featuring a teal green theme. This app allows guests to view wedding details, photos, and contribute to a live event gallery using an invite code.
+A beautiful, modern Next.js web application for Winnie and Omar's wedding, featuring a teal green theme. This app allows guests to view wedding details, photos, and contribute to a live event gallery using an invite code.
 
 ## Features
 

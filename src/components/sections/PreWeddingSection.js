@@ -4,12 +4,12 @@ import Image from 'next/image';
 export default function PreWeddingSection() {
   // In a real app, these would be actual image URLs from your image hosting or CMS
   const photos = [
-    '/images/umarwinnie1.jpeg',
-    '/images/umarwinnie2.jpeg',
-    '/images/umarwinnie3.jpeg',
-    '/images/umarwinnie4.jpeg',
-    '/images/umarwinnie5.jpeg',
-    '/images/umarwinnie6.jpeg'
+    '/images/Omarwinnie1.jpeg',
+    '/images/Omarwinnie2.jpeg',
+    '/images/Omarwinnie3.jpeg',
+    '/images/Omarwinnie4.jpeg',
+    '/images/Omarwinnie5.jpeg',
+    '/images/Omarwinnie6.jpeg'
   ];
   
   return (

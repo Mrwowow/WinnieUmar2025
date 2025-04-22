@@ -11,7 +11,7 @@ export default function HomeSection() {
         {/* <img src="/images/hero-bg.jpg" alt="Wedding background" className="w-full h-full object-cover" /> */}
       </div>
       <div className="relative h-full flex flex-col items-center justify-center text-white text-center px-4">
-        <h1 className="text-5xl md:text-7xl font-bold mb-4">Winnie & Umar</h1>
+        <h1 className="text-5xl md:text-7xl font-bold mb-4">Winnie & Omar</h1>
         <p className="text-2xl mb-8">June 25th & 28th, 2025</p>
         <div className="w-24 h-1 bg-white rounded mb-8"></div>
         <p className="text-xl mb-12 max-w-2xl">Join us to celebrate the beginning of our journey together as husband and wife.</p>

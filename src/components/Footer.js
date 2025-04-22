@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
-            <h2 className="text-2xl font-bold">Winnie & Umar</h2>
+            <h2 className="text-2xl font-bold">Winnie & Omar</h2>
             <p className="text-teal-200">Forever & Always</p>
           </div>
           <div className="flex space-x-4">
@@ -17,7 +17,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-6 text-center text-teal-300 text-sm">
-          <p>&copy; {new Date().getFullYear()} Winnie & Umar&apos;s Wedding. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Winnie & Omar&apos;s Wedding. All rights reserved.</p>
         </div>
       </div>
     </footer>
