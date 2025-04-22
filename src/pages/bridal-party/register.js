@@ -10,7 +10,7 @@ export default function BridalPartyRegistration() {
   return (
     <>
       <Head>
-        <title>Wedding Party Registration | Omar & Winnie&apos;s Wedding</title>
+        <title>WinnieUmar2025 | Groom Men & Bridal Trail</title>
         <meta name="description" content="Register to be part of Omar & Winnie's wedding party" />
       </Head>
 
@@ -18,7 +18,7 @@ export default function BridalPartyRegistration() {
         <div className="py-12 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="mb-8 text-center">
-              <h1 className="text-4xl font-bold text-teal-800 mb-4">Wedding Party Registration</h1>
+              <h1 className="text-4xl font-bold text-teal-800 mb-4">WinnieUmar2025</h1>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
                 Thank you for being part of our special day! Please complete this form with your information
                 so we can include you in our wedding program and coordinate all the details.
