@@ -1,9 +1,26 @@
 // src/components/NavDropdown.js
+import { useState, useEffect, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 export default function NavDropdown({ label, items, isOpen, onToggle, onItemClick }) {
+  const dropdownRef = useRef(null);
+  
+  // Handle clicks outside the dropdown
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target) && isOpen) {
+        onToggle();
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onToggle]);
+
   return (
-    <div className="relative group">
+    <div className="relative group" ref={dropdownRef}>
       <button 
         onClick={onToggle} 
         className="flex items-center text-gray-700 hover:text-teal-700"

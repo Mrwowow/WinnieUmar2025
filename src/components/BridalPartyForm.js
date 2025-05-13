@@ -195,10 +195,9 @@ export default function BridalPartyForm() {
                 <option value="maidOfHonor">Maid of Honor</option>
                 <option value="groomsman">Groomsman</option>
                 <option value="agbada">Men in Agbada</option>
-                <option value="asoibegirls">Asoibe Girls</option>
+                <option value="asoibegirls">Asoebi Girls</option>
                 <option value="bestMan">Best Man</option>
-                <option value="flowergirl">Flower Girl</option>
-                <option value="pageboy">Page Boy</option>
+                <option value="flowergirl">Flower Girls</option>
 
               </select>
             </div>

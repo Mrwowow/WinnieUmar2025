@@ -18,8 +18,14 @@ export default function Header({ setActiveSection, setShowLoginModal }) {
   };
 
   const toggleDropdown = (menu) => {
+    // Close all other dropdowns when opening a new one
+    const allClosed = Object.keys(dropdownOpen).reduce((acc, key) => {
+      acc[key] = false;
+      return acc;
+    }, {});
+    
     setDropdownOpen({
-      ...dropdownOpen,
+      ...allClosed,
       [menu]: !dropdownOpen[menu]
     });
   };
@@ -78,7 +84,10 @@ export default function Header({ setActiveSection, setShowLoginModal }) {
               onToggle={() => toggleDropdown(key)}
               onItemClick={(section) => {
                 setActiveSection(section);
-                toggleDropdown(key);
+                setDropdownOpen(prev => ({
+                  ...prev,
+                  [key]: false
+                }));
               }}
             />
           ))}
