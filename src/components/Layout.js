@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import LoginModal from './LoginModal';
+import MusicPlayer from './MusicPlayer';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Layout({ children, setActiveSection }) {
@@ -22,6 +23,8 @@ export default function Layout({ children, setActiveSection }) {
           onClose={() => setShowLoginModal(false)} 
         />
       )}
+      
+      <MusicPlayer />
     </div>
   );
 }

@@ -12,6 +12,7 @@ A beautiful, modern Next.js web application for Winnie and Omar's wedding, featu
 - Guest authentication with invite codes
 - Live event gallery where guests can upload photos
 - Camera integration for capturing moments
+- Background music player
 
 ## Getting Started
 
@@ -54,6 +55,7 @@ yarn build
 - Add real images by replacing the placeholder URLs
 - Modify the color theme in `tailwind.config.js`
 - Add more sections or features as needed
+- Replace the default wedding music by adding your MP3 file to `/public/music/wedding-song.mp3`
 
 ## License
 
