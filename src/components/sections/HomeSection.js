@@ -7,7 +7,7 @@ export default function HomeSection() {
 
   return (
     <div className="relative h-screen">
-      <div className="absolute inset-0 bg-gradient-to-r from-teal-900 to-teal-700 opacity-90">
+      <div className="absolute inset-0 bg-gradient-to-r from-teal-900 to-teal-700 opacity-100">
         {/* In a real app, this would be a background image */}
       <div className="relative w-full h-full">
         <Image 
