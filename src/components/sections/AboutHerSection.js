@@ -10,7 +10,7 @@ export default function AboutHerSection() {
           <div className="bg-gray-200 h-96 rounded-lg overflow-hidden relative">
             {/* In a real app, this would be an actual image */}
             <Image 
-              src="/images/Omarwinnie4.jpeg" 
+              src="/images/winniepic.jpg" 
               alt="Winnie" 
               layout="fill" 
               objectFit="cover" 

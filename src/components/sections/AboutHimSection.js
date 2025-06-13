@@ -10,7 +10,7 @@ export default function AboutHimSection() {
           <div className="bg-gray-200 h-96 rounded-lg overflow-hidden relative">
             {/* In a real app, this would be an actual image */}
             <Image 
-              src="/api/placeholder/500/700" 
+              src="/images/umar.jpg" 
               alt="Omar" 
               layout="fill" 
               objectFit="cover" 
