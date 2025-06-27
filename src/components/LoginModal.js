@@ -1,60 +1,41 @@
-// src/components/LoginModal.js
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import AdminLogin from './AdminLogin';
 
 export default function LoginModal({ onClose }) {
   const { login } = useAuth();
-  const [inviteCode, setInviteCode] = useState('');
-  const [guestName, setGuestName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!inviteCode || !guestName) {
-      setError('Both invite code and name are required');
+    if (!email || !password) {
+      setError('Email and password are required');
       return;
     }
     
     setIsLoading(true);
     setError('');
     
-    try {
-      // In a real app, you would call your API here
-      // For this demo, we'll simulate API validation with a timeout
-      
-      setTimeout(() => {
-        // For demo purposes, accept any code
-        login(inviteCode, guestName);
-        setIsLoading(false);
-        onClose();
-      }, 1000);
-      
-      // With a real API, you would do:
-      /*
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ inviteCode, guestName }),
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        login(inviteCode, guestName);
-        onClose();
-      } else {
-        setError(data.message || 'Invalid invite code');
-      }
-      */
-    } catch (err) {
-      setError('Something went wrong. Please try again.');
-    } finally {
-      setIsLoading(false);
+    const result = await login(email, password);
+    
+    if (result.success) {
+      onClose();
+    } else {
+      setError(result.error);
+    }
+    
+    setIsLoading(false);
+  };
+
+  const handleQuickFill = (type) => {
+    if (type === 'admin') {
+      setEmail('admin@wedding.com');
+      setPassword('admin123');
     }
   };
 
@@ -68,6 +49,10 @@ export default function LoginModal({ onClose }) {
           </button>
         </div>
         
+        {process.env.NODE_ENV === 'development' && (
+          <AdminLogin onClose={onClose} />
+        )}
+        
         {error && (
           <div className="mb-4 p-2 bg-red-50 text-red-600 rounded border border-red-200">
             {error}
@@ -76,29 +61,29 @@ export default function LoginModal({ onClose }) {
         
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="inviteCode" className="block text-gray-700 mb-2">Invite Code</label>
+            <label htmlFor="email" className="block text-gray-700 mb-2">Email</label>
             <input
-              type="text"
-              id="inviteCode"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value)}
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
               required
               disabled={isLoading}
-              placeholder="Enter your invite code"
+              placeholder="Enter your email"
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="guestName" className="block text-gray-700 mb-2">Your Name</label>
+            <label htmlFor="password" className="block text-gray-700 mb-2">Password</label>
             <input
-              type="text"
-              id="guestName"
-              value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
               required
               disabled={isLoading}
-              placeholder="Enter your name"
+              placeholder="Enter your password"
             />
           </div>
           <button
@@ -110,8 +95,21 @@ export default function LoginModal({ onClose }) {
           </button>
         </form>
         
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-4 p-3 bg-gray-100 rounded-md">
+            <p className="text-xs text-gray-600 font-semibold mb-2">Quick Fill (Dev Only):</p>
+            <button
+              type="button"
+              onClick={() => handleQuickFill('admin')}
+              className="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded mr-2"
+            >
+              Admin Credentials
+            </button>
+          </div>
+        )}
+        
         <div className="mt-4 text-sm text-gray-500 text-center">
-          <p>For demo, use any code like &quot;WEDDING2025&quot;</p>
+          <p>Don&apos;t have an account? Contact the wedding organizers for access.</p>
         </div>
       </div>
     </div>

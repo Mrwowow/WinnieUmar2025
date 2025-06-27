@@ -1,8 +1,10 @@
-// src/components/BridalPartyForm.js
 import { useState } from 'react';
 import { Camera, Upload, X, Save, User, Heart } from 'lucide-react';
 import { useCamera } from '../hooks/useCamera';
-import Image from 'next/image'; // Import Next.js Image component
+import Image from 'next/image';
+import { bridalPartyService } from '../services/bridalPartyService';
+import { uploadService } from '../services/uploadService';
+
 
 export default function BridalPartyForm() {
   const [formData, setFormData] = useState({
@@ -12,14 +14,16 @@ export default function BridalPartyForm() {
     bio: '',
     maritalStatus: '',
     toast: '',
-    role: 'bridesmaid', // Default role
-    image: null
+    role: 'bridesmaid',
+    imageUrl: '',
+    imageFile: null
   });
   
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
   
   const { isCameraActive, takePhoto } = useCamera();
   
@@ -30,7 +34,6 @@ export default function BridalPartyForm() {
       [name]: value
     }));
     
-    // Clear error when field is edited
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -42,13 +45,24 @@ export default function BridalPartyForm() {
   const handleImageCapture = async () => {
     try {
       const photoUrl = await takePhoto();
+      
+      // Convert base64 to blob for upload
+      const response = await fetch(photoUrl);
+      const blob = await response.blob();
+      const file = new File([blob], `photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      
       setFormData(prev => ({
         ...prev,
-        image: photoUrl
+        imageFile: file
       }));
+      setImagePreview(photoUrl);
       setShowImageModal(false);
     } catch (error) {
       console.error('Error taking photo:', error);
+      setErrors(prev => ({
+        ...prev,
+        image: 'Failed to take photo'
+      }));
     }
   };
   
@@ -63,12 +77,22 @@ export default function BridalPartyForm() {
         return;
       }
       
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors(prev => ({
+          ...prev,
+          image: 'Image size must be less than 5MB'
+        }));
+        return;
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        imageFile: file
+      }));
+      
       const reader = new FileReader();
       reader.onload = (e) => {
-        setFormData(prev => ({
-          ...prev,
-          image: e.target.result
-        }));
+        setImagePreview(e.target.result);
         setShowImageModal(false);
       };
       reader.onerror = () => {
@@ -101,7 +125,14 @@ export default function BridalPartyForm() {
     if (!formData.bio.trim()) newErrors.bio = 'Short bio is required';
     if (!formData.maritalStatus) newErrors.maritalStatus = 'Marital status is required';
     if (!formData.toast.trim()) newErrors.toast = 'Toast message is required';
-    if (!formData.image) newErrors.image = 'Please upload or take a photo';
+    
+    // Make image optional for now while debugging upload issues
+    if (process.env.NODE_ENV === 'production') {
+      if (!formData.imageFile && !imagePreview) newErrors.image = 'Please upload or take a photo';
+    } else {
+      // In development, image is optional
+      console.log('Dev mode: Image is optional for testing');
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -110,20 +141,83 @@ export default function BridalPartyForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      return;
+    }
     
     setIsSubmitting(true);
+    setErrors({}); // Clear any previous errors
     
     try {
-      // In a real app, you would send this data to your API
-      // For this demo, we'll simulate a successful submission
+      console.log('Starting form submission...');
       
-      console.log('Form data to submit:', formData);
+      // First upload the image using admin authentication
+      let imageUrl = '';
+      if (formData.imageFile) {
+        console.log('Uploading image file:', formData.imageFile.name, 'Size:', formData.imageFile.size);
+        try {
+          const uploadResponse = await uploadService.uploadBridalPartyImage(formData.imageFile);
+          console.log('Upload response:', uploadResponse);
+          
+          // Handle different response formats
+          if (uploadResponse.url) {
+            imageUrl = uploadResponse.url;
+          } else if (uploadResponse.data && uploadResponse.data.url) {
+            imageUrl = uploadResponse.data.url;
+          } else if (uploadResponse.imageUrl) {
+            imageUrl = uploadResponse.imageUrl;
+          } else if (uploadResponse.path) {
+            imageUrl = uploadResponse.path;
+          } else if (uploadResponse.location) {
+            imageUrl = uploadResponse.location;
+          } else if (typeof uploadResponse === 'string') {
+            imageUrl = uploadResponse;
+          } else {
+            console.warn('Unknown upload response format:', uploadResponse);
+            imageUrl = '';
+          }
+          
+          console.log('Image uploaded successfully:', imageUrl);
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError);
+          // For now, continue without image rather than failing the whole form
+          console.warn('Continuing registration without image due to upload failure');
+          imageUrl = ''; // Leave empty, backend should handle this gracefully
+        }
+      } else {
+        console.log('No image file to upload');
+      }
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Then submit the form data (also uses admin auth internally)
+      const registrationData = {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        bio: formData.bio,
+        maritalStatus: formData.maritalStatus,
+        toast: formData.toast,
+        role: formData.role
+      };
       
-      // Show success message
+      // Only include imageUrl if it's not empty
+      if (imageUrl && imageUrl.trim()) {
+        // According to BACKEND_INSTRUCTIONS.md, the BridalPartyMember model has imageUrl field
+        registrationData.imageUrl = imageUrl;
+        console.log('Including image URL in payload (imageUrl field):', imageUrl);
+        console.log('Image URL validation - length:', imageUrl.length, 'type:', typeof imageUrl, 'starts with http:', imageUrl.startsWith('http'));
+      } else {
+        console.log('No image URL to include in payload');
+      }
+      
+      console.log('Submitting registration data:', registrationData);
+      console.log('Image URL being sent:', imageUrl);
+      console.log('Image URL length:', imageUrl.length);
+      console.log('Image URL type:', typeof imageUrl);
+      
+      const result = await bridalPartyService.registerMember(registrationData);
+      console.log('Registration successful!');
+      console.log('Registration result:', result);
+      
       setShowSuccess(true);
       
       // Reset form after delay
@@ -136,16 +230,42 @@ export default function BridalPartyForm() {
           maritalStatus: '',
           toast: '',
           role: 'bridesmaid',
-          image: null
+          imageUrl: '',
+          imageFile: null
         });
+        setImagePreview(null);
         setShowSuccess(false);
-      }, 3000);
+      }, 5000);
       
     } catch (error) {
       console.error('Error submitting form:', error);
+      
+      let errorMessage;
+      
+      // Handle specific error types
+      if (error.message?.includes('Rate limited')) {
+        errorMessage = 'Too many requests. Please wait a few minutes and try again.';
+      } else if (error.message?.includes('Authentication failed')) {
+        errorMessage = 'Authentication error. Please contact support if this persists.';
+      } else if (error.message?.includes('File too large')) {
+        errorMessage = 'Image file is too large. Please choose a smaller image (max 5MB).';
+      } else if (error.response?.status === 413) {
+        errorMessage = 'File is too large. Please choose a smaller image.';
+      } else if (error.response?.status === 429) {
+        errorMessage = 'Too many requests. Please wait a few minutes and try again.';
+      } else if (error.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please contact support.';
+      } else if (error.response?.status === 500) {
+        errorMessage = 'Server error. Please try again later or contact support.';
+      } else {
+        errorMessage = error.response?.data?.message || 
+                     error.message || 
+                     'Failed to submit form. Please try again.';
+      }
+      
       setErrors(prev => ({
         ...prev,
-        form: 'Failed to submit form. Please try again.'
+        form: errorMessage
       }));
     } finally {
       setIsSubmitting(false);
@@ -157,8 +277,10 @@ export default function BridalPartyForm() {
       <div className="mb-6 text-center">
         <h2 className="text-3xl font-bold text-teal-800">Reg Form</h2>
         <p className="text-gray-600 mt-2">Please complete this form to join Winnie & Omar&apos;s Bridal Train and Grooms men</p>
+
+        
       </div>
-      
+
       {showSuccess && (
         <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg border border-green-200 flex items-center">
           <div className="mr-2">
@@ -192,13 +314,12 @@ export default function BridalPartyForm() {
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
                 <option value="bridesmaid">Bridesmaid</option>
-                <option value="maidOfHonor">Maid of Honor</option>
+                <option value="maid_of_honor">Maid of Honor</option>
                 <option value="groomsman">Groomsman</option>
-                <option value="agbada">Men in Agbada</option>
-                <option value="asoibegirls">Asoebi Girls</option>
-                <option value="bestMan">Best Man</option>
-                <option value="flowergirl">Flower Girls</option>
-
+                <option value="best_man">Best Man</option>
+                <option value="men_in_agbada">Men in Agbada</option>
+                <option value="asoebi_girls">Asoebi Girls</option>
+                <option value="flower_girls">Flower Girls</option>
               </select>
             </div>
             
@@ -260,12 +381,11 @@ export default function BridalPartyForm() {
                 className={`border-2 border-dashed ${errors.image ? 'border-red-400' : 'border-gray-300'} rounded-lg p-2 flex flex-col items-center justify-center h-48 cursor-pointer hover:border-teal-500 transition-colors`}
                 onClick={() => setShowImageModal(true)}
               >
-                {formData.image ? (
+                {imagePreview ? (
                   <div className="relative w-full h-full">
-                    {/* Replace img with Next.js Image component */}
                     <div className="relative w-full h-full">
                       <Image 
-                        src={formData.image} 
+                        src={imagePreview} 
                         alt="Preview" 
                         layout="fill" 
                         objectFit="cover"
@@ -277,7 +397,8 @@ export default function BridalPartyForm() {
                       className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setFormData(prev => ({ ...prev, image: null }));
+                        setFormData(prev => ({ ...prev, imageFile: null }));
+                        setImagePreview(null);
                       }}
                     >
                       <X className="h-4 w-4" />

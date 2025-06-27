@@ -1,11 +1,11 @@
 // src/components/Header.js
 import { useState } from 'react';
-import { Menu, ChevronDown } from 'lucide-react';
+import { Menu, ChevronDown, Shield } from 'lucide-react';
 import NavDropdown from './NavDropdown';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Header({ setActiveSection, setShowLoginModal }) {
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState({
     about: false,
@@ -93,12 +93,20 @@ export default function Header({ setActiveSection, setShowLoginModal }) {
           ))}
           
           {isLoggedIn ? (
-            <button 
-              onClick={logout} 
-              className="bg-teal-700 text-white px-4 py-2 rounded-md hover:bg-teal-800 transition-colors"
-            >
-              Logout
-            </button>
+            <div className="flex items-center space-x-3">
+              {user?.role === 'admin' && (
+                <div className="flex items-center text-yellow-600">
+                  <Shield className="h-5 w-5 mr-1" />
+                  <span className="text-sm font-medium">Admin</span>
+                </div>
+              )}
+              <button 
+                onClick={logout} 
+                className="bg-teal-700 text-white px-4 py-2 rounded-md hover:bg-teal-800 transition-colors"
+              >
+                Logout
+              </button>
+            </div>
           ) : (
             <button 
               onClick={() => setShowLoginModal(true)} 
@@ -159,12 +167,20 @@ export default function Header({ setActiveSection, setShowLoginModal }) {
           
           <div className="border-t border-gray-100 px-4 py-2">
             {isLoggedIn ? (
-              <button 
-                onClick={logout} 
-                className="w-full bg-teal-700 text-white px-4 py-2 rounded-md hover:bg-teal-800 transition-colors"
-              >
-                Logout
-              </button>
+              <div className="space-y-2">
+                {user?.role === 'admin' && (
+                  <div className="flex items-center justify-center text-yellow-600 py-2">
+                    <Shield className="h-5 w-5 mr-1" />
+                    <span className="text-sm font-medium">Admin Mode</span>
+                  </div>
+                )}
+                <button 
+                  onClick={logout} 
+                  className="w-full bg-teal-700 text-white px-4 py-2 rounded-md hover:bg-teal-800 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
             ) : (
               <button 
                 onClick={() => {

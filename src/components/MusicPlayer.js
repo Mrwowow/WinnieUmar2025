@@ -38,9 +38,10 @@ export default function MusicPlayer() {
     }
     
     return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('play', () => setIsPlaying(true));
-        audioRef.current.removeEventListener('pause', () => setIsPlaying(false));
+      const audio = audioRef.current;
+      if (audio) {
+        audio.removeEventListener('play', () => setIsPlaying(true));
+        audio.removeEventListener('pause', () => setIsPlaying(false));
       }
     };
   }, [autoplayAttempted]);

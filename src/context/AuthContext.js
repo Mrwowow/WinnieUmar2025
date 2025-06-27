@@ -1,49 +1,74 @@
 import { createContext, useState, useEffect } from 'react';
+import { authService } from '../services/authService';
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [guestName, setGuestName] = useState('');
-  const [inviteCode, setInviteCode] = useState('');
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Check for existing login on page load
   useEffect(() => {
-    const storedAuth = localStorage.getItem('weddingGuestAuth');
-    if (storedAuth) {
-      const authData = JSON.parse(storedAuth);
-      setIsLoggedIn(true);
-      setGuestName(authData.name);
-      setInviteCode(authData.code);
-    }
+    const initAuth = async () => {
+      try {
+        const token = authService.getToken();
+        if (token) {
+          const currentUser = await authService.getCurrentUser();
+          setUser(currentUser);
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        authService.logout();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
   }, []);
 
-  const login = (code, name) => {
-    // In a real app, you would validate the invite code with your backend
-    setIsLoggedIn(true);
-    setGuestName(name);
-    setInviteCode(code);
-    
-    // Store auth data in localStorage
-    localStorage.setItem('weddingGuestAuth', JSON.stringify({
-      code,
-      name
-    }));
+  const login = async (email, password) => {
+    try {
+      const data = await authService.login(email, password);
+      setUser(data.user);
+      setIsLoggedIn(true);
+      return { success: true };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Login failed' 
+      };
+    }
+  };
+
+  const register = async (userData) => {
+    try {
+      const data = await authService.register(userData);
+      setUser(data.user);
+      setIsLoggedIn(true);
+      return { success: true };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Registration failed' 
+      };
+    }
   };
 
   const logout = () => {
+    authService.logout();
     setIsLoggedIn(false);
-    setGuestName('');
-    setInviteCode('');
-    localStorage.removeItem('weddingGuestAuth');
+    setUser(null);
   };
 
   return (
     <AuthContext.Provider value={{ 
       isLoggedIn, 
-      guestName, 
-      inviteCode,
+      user,
+      loading,
       login,
+      register,
       logout
     }}>
       {children}

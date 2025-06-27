@@ -1,49 +1,68 @@
-// File: src/components/sections/GallerySection.js
 import { useState, useEffect } from 'react';
-import { Camera, Image as ImageIcon } from 'lucide-react';
+import { Camera, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import UploadModal from '../UploadModal';
 import Image from 'next/image';
+import { galleryService } from '../../services/galleryService';
 
 export default function GallerySection() {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const [photos, setPhotos] = useState([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [deleteLoading, setDeleteLoading] = useState({});
 
   useEffect(() => {
-    // In a real app, fetch photos from the API
-    const fetchPhotos = async () => {
-      try {
-        // Simulate API call with timeout
-        setTimeout(() => {
-          // This would be replaced with actual API data
-          setPhotos([]);
-          setLoading(false);
-        }, 1000);
-      } catch (error) {
-        console.error('Error fetching gallery photos:', error);
-        setLoading(false);
-      }
-    };
-
     if (isLoggedIn) {
       fetchPhotos();
     } else {
       setLoading(false);
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, page, fetchPhotos]);
 
-  const handleAddPhoto = (photoUrl) => {
-    // In a real app, this would come from the server after upload
-    const newPhoto = {
-      id: Date.now().toString(),
-      url: photoUrl,
-      uploadedBy: "You",
-      timestamp: new Date().toISOString()
-    };
-    
+  const fetchPhotos = async () => {
+    try {
+      setLoading(true);
+      const response = await galleryService.getPhotos(page);
+      
+      if (page === 1) {
+        setPhotos(response.photos || []);
+      } else {
+        setPhotos(prev => [...prev, ...(response.photos || [])]);
+      }
+      
+      setHasMore(response.hasMore || false);
+    } catch (error) {
+      console.error('Error fetching gallery photos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePhotoAdded = (newPhoto) => {
     setPhotos([newPhoto, ...photos]);
+  };
+
+  const handleDeletePhoto = async (photoId) => {
+    if (!confirm('Are you sure you want to delete this photo?')) return;
+
+    setDeleteLoading(prev => ({ ...prev, [photoId]: true }));
+    
+    try {
+      await galleryService.deletePhoto(photoId);
+      setPhotos(photos.filter(photo => photo.id !== photoId));
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+      alert('Failed to delete photo');
+    } finally {
+      setDeleteLoading(prev => ({ ...prev, [photoId]: false }));
+    }
+  };
+
+  const loadMore = () => {
+    setPage(prev => prev + 1);
   };
 
   if (!isLoggedIn) {
@@ -52,7 +71,7 @@ export default function GallerySection() {
         <div className="max-w-md text-center bg-white p-8 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold text-teal-800 mb-4">Guest Access Required</h2>
           <p className="text-gray-700 mb-6">
-            Please log in with your invite code to view and contribute to the live event gallery.
+            Please log in to view and contribute to the live event gallery.
           </p>
         </div>
       </div>
@@ -72,7 +91,7 @@ export default function GallerySection() {
         </button>
       </div>
       
-      {loading ? (
+      {loading && page === 1 ? (
         <div className="flex justify-center items-center py-12">
           <div className="animate-pulse text-teal-700">Loading gallery...</div>
         </div>
@@ -89,32 +108,60 @@ export default function GallerySection() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {photos.map((photo) => (
-            <div key={photo.id} className="bg-white rounded-lg overflow-hidden shadow-md">
-              <div className="w-full aspect-square relative">
-                <Image 
-                  src={photo.url} 
-                  alt={`Gallery photo by ${photo.uploadedBy}`} 
-                  layout="fill" 
-                  objectFit="cover" 
-                />
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {photos.map((photo) => (
+              <div key={photo.id || photo._id} className="bg-white rounded-lg overflow-hidden shadow-md relative group">
+                <div className="w-full aspect-square relative">
+                  <Image 
+                    src={photo.url} 
+                    alt={photo.caption || `Gallery photo`} 
+                    layout="fill" 
+                    objectFit="cover" 
+                  />
+                  {user?.role === 'admin' && (
+                    <button
+                      onClick={() => handleDeletePhoto(photo.id || photo._id)}
+                      disabled={deleteLoading[photo.id || photo._id]}
+                      className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity disabled:bg-gray-400"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                <div className="p-3">
+                  {photo.caption && (
+                    <p className="text-sm text-gray-700 mb-1">{photo.caption}</p>
+                  )}
+                  <p className="text-sm text-gray-500">
+                    By: {photo.uploadedBy?.name || 'Anonymous'}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {new Date(photo.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
-              <div className="p-3">
-                <p className="text-sm text-gray-500">Uploaded by: {photo.uploadedBy}</p>
-                <p className="text-xs text-gray-400">
-                  {new Date(photo.timestamp).toLocaleDateString()}
-                </p>
-              </div>
+            ))}
+          </div>
+          
+          {hasMore && (
+            <div className="text-center mt-8">
+              <button
+                onClick={loadMore}
+                disabled={loading}
+                className="bg-teal-700 text-white px-6 py-2 rounded-md hover:bg-teal-800 transition-colors disabled:bg-gray-400"
+              >
+                {loading ? 'Loading...' : 'Load More'}
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {showUploadModal && (
         <UploadModal 
           onClose={() => setShowUploadModal(false)} 
-          onPhotoAdded={handleAddPhoto}
+          onPhotoAdded={handlePhotoAdded}
         />
       )}
     </div>
