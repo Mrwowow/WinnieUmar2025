@@ -41,10 +41,9 @@ export default function MusicPlayer() {
     }
     
     return () => {
-      const audio = audioRef.current;
-      if (audio) {
-        audio.removeEventListener('play', handlePlay);
-        audio.removeEventListener('pause', handlePause);
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('play', handlePlay);
+        audioRef.current.removeEventListener('pause', handlePause);
       }
     };
   }, [autoplayAttempted]);

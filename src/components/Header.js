@@ -1,59 +1,25 @@
 // src/components/Header.js
 import { useState } from 'react';
-import { Menu, ChevronDown, Shield } from 'lucide-react';
-import NavDropdown from './NavDropdown';
+import { Menu, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Header({ setActiveSection, setShowLoginModal }) {
   const { isLoggedIn, user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState({
-    about: false,
-    programme: false,
-    photoshoot: false
-  });
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const toggleDropdown = (menu) => {
-    // Close all other dropdowns when opening a new one
-    const allClosed = Object.keys(dropdownOpen).reduce((acc, key) => {
-      acc[key] = false;
-      return acc;
-    }, {});
-    
-    setDropdownOpen({
-      ...allClosed,
-      [menu]: !dropdownOpen[menu]
-    });
-  };
-
-  const navItems = {
-    about: {
-      label: 'About Us',
-      items: [
-        { label: 'About Him', section: 'aboutHim' },
-        { label: 'About Her', section: 'aboutHer' }
-      ]
-    },
-    programme: {
-      label: 'Programme',
-      items: [
-        { label: 'Wedding Programme', section: 'programme' },
-        { label: 'Traditional Wedding', section: 'traditional' },
-        { label: 'Church Wedding', section: 'church' }
-      ]
-    },
-    photoshoot: {
-      label: 'Photoshoot',
-      items: [
-        { label: 'Pre-wedding', section: 'preWedding' },
-        { label: 'Live Event Gallery', section: 'gallery' }
-      ]
-    }
-  };
+  const menuItems = [
+    { label: 'Home', section: 'home' },
+    { label: 'About Him', section: 'aboutHim' },
+    { label: 'About Her', section: 'aboutHer' },
+    { label: 'Wedding Programme', section: 'programme' },
+    { label: 'Bridal Party', section: 'bridalParty' },
+    { label: 'Pre-wedding', section: 'preWedding' },
+    { label: 'Live Event Gallery', section: 'gallery' }
+  ];
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-md">
@@ -68,33 +34,19 @@ export default function Header({ setActiveSection, setShowLoginModal }) {
         </div>
         
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
-          <button 
-            onClick={() => setActiveSection('home')} 
-            className="text-gray-700 hover:text-teal-700"
-          >
-            Home
-          </button>
-          
-          {Object.entries(navItems).map(([key, { label, items }]) => (
-            <NavDropdown 
-              key={key}
-              label={label}
-              items={items}
-              isOpen={dropdownOpen[key]}
-              onToggle={() => toggleDropdown(key)}
-              onItemClick={(section) => {
-                setActiveSection(section);
-                setDropdownOpen(prev => ({
-                  ...prev,
-                  [key]: false
-                }));
-              }}
-            />
+        <nav className="hidden md:flex items-center space-x-4">
+          {menuItems.map((item) => (
+            <button 
+              key={item.section}
+              onClick={() => setActiveSection(item.section)} 
+              className="text-gray-700 hover:text-teal-700 whitespace-nowrap"
+            >
+              {item.label}
+            </button>
           ))}
           
           {isLoggedIn ? (
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 ml-4">
               {user?.role === 'admin' && (
                 <div className="flex items-center text-yellow-600">
                   <Shield className="h-5 w-5 mr-1" />
@@ -111,7 +63,7 @@ export default function Header({ setActiveSection, setShowLoginModal }) {
           ) : (
             <button 
               onClick={() => setShowLoginModal(true)} 
-              className="bg-teal-700 text-white px-4 py-2 rounded-md hover:bg-teal-800 transition-colors"
+              className="bg-teal-700 text-white px-4 py-2 rounded-md hover:bg-teal-800 transition-colors ml-4"
             >
               Guest Login
             </button>
@@ -127,46 +79,20 @@ export default function Header({ setActiveSection, setShowLoginModal }) {
       {/* Mobile Navigation */}
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t border-gray-200">
-          <button 
-            onClick={() => { 
-              setActiveSection('home'); 
-              setIsMenuOpen(false); 
-            }} 
-            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-teal-50"
-          >
-            Home
-          </button>
-          
-          {Object.entries(navItems).map(([key, { label, items }]) => (
-            <div key={key} className="border-t border-gray-100">
-              <button 
-                onClick={() => toggleDropdown(key)} 
-                className="flex items-center justify-between w-full px-4 py-2 text-gray-700 hover:bg-teal-50"
-              >
-                {label} 
-                <ChevronDown className={`h-4 w-4 transition-transform ${dropdownOpen[key] ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {dropdownOpen[key] && (
-                <div className="bg-gray-50 pl-8">
-                  {items.map((item) => (
-                    <button 
-                      key={item.section}
-                      onClick={() => { 
-                        setActiveSection(item.section); 
-                        setIsMenuOpen(false); 
-                      }} 
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-teal-50"
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+          {menuItems.map((item) => (
+            <button 
+              key={item.section}
+              onClick={() => { 
+                setActiveSection(item.section); 
+                setIsMenuOpen(false); 
+              }} 
+              className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-teal-50 border-b border-gray-100"
+            >
+              {item.label}
+            </button>
           ))}
           
-          <div className="border-t border-gray-100 px-4 py-2">
+          <div className="border-t border-gray-200 px-4 py-2">
             {isLoggedIn ? (
               <div className="space-y-2">
                 {user?.role === 'admin' && (
@@ -176,7 +102,10 @@ export default function Header({ setActiveSection, setShowLoginModal }) {
                   </div>
                 )}
                 <button 
-                  onClick={logout} 
+                  onClick={() => {
+                    logout();
+                    setIsMenuOpen(false);
+                  }} 
                   className="w-full bg-teal-700 text-white px-4 py-2 rounded-md hover:bg-teal-800 transition-colors"
                 >
                   Logout

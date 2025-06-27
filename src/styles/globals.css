@@ -66,3 +66,15 @@ a {
   transform: translateY(-100%);
   transition: transform 300ms;
 }
+
+/* Utility classes */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}

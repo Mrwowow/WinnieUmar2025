@@ -1,6 +1,8 @@
 import axios from 'axios';
+import apiProxy from '../config/apiProxy';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const USE_PROXY = true; // Enable proxy to avoid CORS
 
 class AdminAuthService {
   constructor() {
@@ -44,12 +46,21 @@ class AdminAuthService {
   async _authenticate() {
     try {
       console.log('Generating new admin token...');
-      console.log('API URL:', `${API_URL}/auth/login`);
       
-      const response = await axios.post(`${API_URL}/auth/login`, {
-        email: 'admin@wedding.com',
-        password: 'admin123'
-      });
+      let response;
+      if (USE_PROXY) {
+        console.log('Using proxy for authentication');
+        response = await apiProxy.post('/auth/login', {
+          email: 'admin@wedding.com',
+          password: 'admin123'
+        });
+      } else {
+        console.log('API URL:', `${API_URL}/auth/login`);
+        response = await axios.post(`${API_URL}/auth/login`, {
+          email: 'admin@wedding.com',
+          password: 'admin123'
+        });
+      }
 
       console.log('Auth response status:', response.status);
       console.log('Auth response data:', response.data);
@@ -120,22 +131,46 @@ class AdminAuthService {
     try {
       const token = await this.getAdminToken();
       
-      const config = {
-        method,
-        url: `${API_URL}${endpoint}`,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      if (USE_PROXY) {
+        // Use proxy to avoid CORS
+        const config = {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        };
+
+        let response;
+        if (method === 'get') {
+          response = await apiProxy.get(endpoint, config);
+        } else if (method === 'post') {
+          response = await apiProxy.post(endpoint, data, config);
+        } else if (method === 'put') {
+          response = await apiProxy.put(endpoint, data, config);
+        } else if (method === 'delete') {
+          response = await apiProxy.delete(endpoint, config);
         }
-      };
 
-      if (data) {
-        config.data = data;
+        this.retryCount = 0; // Reset retry count on success
+        return response.data;
+      } else {
+        // Original direct API call
+        const config = {
+          method,
+          url: `${API_URL}${endpoint}`,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        };
+
+        if (data) {
+          config.data = data;
+        }
+
+        const response = await axios(config);
+        this.retryCount = 0; // Reset retry count on success
+        return response.data;
       }
-
-      const response = await axios(config);
-      this.retryCount = 0; // Reset retry count on success
-      return response.data;
     } catch (error) {
       // If unauthorized and we haven't exceeded retry limit
       if (error.response?.status === 401 && this.retryCount < this.maxRetries) {
@@ -159,17 +194,33 @@ class AdminAuthService {
     try {
       const token = await this.getAdminToken();
       
-      console.log('Uploading with admin auth to:', `${API_URL}${endpoint}`);
-      
-      const response = await axios.post(`${API_URL}${endpoint}`, formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      
-      this.retryCount = 0; // Reset retry count on success
-      return response.data;
+      if (USE_PROXY) {
+        console.log('Uploading with admin auth via proxy to:', endpoint);
+        console.log('FormData keys:', Array.from(formData.keys()));
+        
+        const response = await apiProxy.post(endpoint, formData, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+            // Don't set Content-Type - let axios set it with boundary for FormData
+          }
+        });
+        
+        this.retryCount = 0; // Reset retry count on success
+        return response.data;
+      } else {
+        console.log('Uploading with admin auth to:', `${API_URL}${endpoint}`);
+        console.log('FormData keys:', Array.from(formData.keys()));
+        
+        const response = await axios.post(`${API_URL}${endpoint}`, formData, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+            // Don't set Content-Type - let axios set it with boundary for FormData
+          }
+        });
+        
+        this.retryCount = 0; // Reset retry count on success
+        return response.data;
+      }
     } catch (error) {
       console.error('Upload error:', error.response?.status, error.response?.data);
       

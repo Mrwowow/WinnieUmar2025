@@ -6,6 +6,7 @@ import HomeSection from '../components/sections/HomeSection';
 import AboutHimSection from '../components/sections/AboutHimSection';
 import AboutHerSection from '../components/sections/AboutHerSection';
 import WeddingProgrammeSection from '../components/sections/WeddingProgrammeSection';
+import BridalPartySection from '../components/sections/BridalPartySection';
 import TraditionalWeddingSection from '../components/sections/TraditionalWeddingSection';
 import ChurchWeddingSection from '../components/sections/ChurchWeddingSection';
 import PreWeddingSection from '../components/sections/PreWeddingSection';
@@ -37,6 +38,7 @@ export default function Home() {
         {activeSection === 'aboutHim' && <AboutHimSection />}
         {activeSection === 'aboutHer' && <AboutHerSection />}
         {activeSection === 'programme' && <WeddingProgrammeSection />}
+        {activeSection === 'bridalParty' && <BridalPartySection />}
         {activeSection === 'traditional' && <TraditionalWeddingSection />}
         {activeSection === 'church' && <ChurchWeddingSection />}
         {activeSection === 'preWedding' && <PreWeddingSection />}

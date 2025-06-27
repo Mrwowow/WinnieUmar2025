@@ -6,6 +6,7 @@ import { bridalPartyService } from '../services/bridalPartyService';
 import { uploadService } from '../services/uploadService';
 
 
+
 export default function BridalPartyForm() {
   const [formData, setFormData] = useState({
     name: '',
@@ -68,6 +69,8 @@ export default function BridalPartyForm() {
   
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
+    console.log('File selected:', file ? { name: file.name, size: file.size, type: file.type } : 'No file');
+    
     if (file) {
       if (!file.type.startsWith('image/')) {
         setErrors(prev => ({
@@ -85,10 +88,15 @@ export default function BridalPartyForm() {
         return;
       }
       
-      setFormData(prev => ({
-        ...prev,
-        imageFile: file
-      }));
+      console.log('Setting image file in form data:', file.name);
+      setFormData(prev => {
+        const newData = {
+          ...prev,
+          imageFile: file
+        };
+        console.log('Updated form data:', { hasImageFile: !!newData.imageFile });
+        return newData;
+      });
       
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -150,14 +158,23 @@ export default function BridalPartyForm() {
     
     try {
       console.log('Starting form submission...');
+      console.log('Form data at submission:', {
+        hasImageFile: !!formData.imageFile,
+        imageFileName: formData.imageFile?.name,
+        imageFileSize: formData.imageFile?.size,
+        imagePreview: !!imagePreview
+      });
       
       // First upload the image using admin authentication
       let imageUrl = '';
       if (formData.imageFile) {
         console.log('Uploading image file:', formData.imageFile.name, 'Size:', formData.imageFile.size);
         try {
+          console.log('Calling uploadService.uploadBridalPartyImage...');
           const uploadResponse = await uploadService.uploadBridalPartyImage(formData.imageFile);
-          console.log('Upload response:', uploadResponse);
+          console.log('Raw upload response:', uploadResponse);
+          console.log('Upload response type:', typeof uploadResponse);
+          console.log('Upload response keys:', Object.keys(uploadResponse || {}));
           
           // Handle different response formats
           if (uploadResponse.url) {
@@ -180,6 +197,12 @@ export default function BridalPartyForm() {
           console.log('Image uploaded successfully:', imageUrl);
         } catch (uploadError) {
           console.error('Image upload failed:', uploadError);
+          console.error('Upload error details:', {
+            message: uploadError.message,
+            status: uploadError.response?.status,
+            data: uploadError.response?.data,
+            stack: uploadError.stack
+          });
           // For now, continue without image rather than failing the whole form
           console.warn('Continuing registration without image due to upload failure');
           imageUrl = ''; // Leave empty, backend should handle this gracefully
@@ -277,7 +300,6 @@ export default function BridalPartyForm() {
       <div className="mb-6 text-center">
         <h2 className="text-3xl font-bold text-teal-800">Reg Form</h2>
         <p className="text-gray-600 mt-2">Please complete this form to join Winnie & Omar&apos;s Bridal Train and Grooms men</p>
-
         
       </div>
 

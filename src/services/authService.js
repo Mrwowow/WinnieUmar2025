@@ -1,8 +1,12 @@
 import api from '../config/api';
+import apiProxy from '../config/apiProxy';
+
+// Use proxy for CORS issues
+const apiClient = apiProxy;
 
 export const authService = {
   async login(email, password) {
-    const response = await api.post('/auth/login', { email, password });
+    const response = await apiClient.post('/auth/login', { email, password });
     const { token, user } = response.data;
     
     if (token) {
@@ -14,7 +18,7 @@ export const authService = {
   },
 
   async register(userData) {
-    const response = await api.post('/auth/register', userData);
+    const response = await apiClient.post('/auth/register', userData);
     const { token, user } = response.data;
     
     if (token) {
@@ -26,14 +30,14 @@ export const authService = {
   },
 
   async getCurrentUser() {
-    const response = await api.get('/auth/me');
+    const response = await apiClient.get('/auth/me');
     return response.data;
   },
 
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    api.post('/auth/logout').catch(() => {});
+    apiClient.post('/auth/logout').catch(() => {});
   },
 
   getStoredUser() {

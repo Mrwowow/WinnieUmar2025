@@ -1,5 +1,9 @@
 import api from '../config/api';
+import apiProxy from '../config/apiProxy';
 import { adminAuthService } from './adminAuthService';
+
+// Use proxy for CORS issues
+const apiClient = apiProxy;
 
 export const uploadService = {
   async uploadImage(file, useAdminAuth = false) {
@@ -10,10 +14,10 @@ export const uploadService = {
       // Use admin auth for public uploads (like bridal party registration)
       return await adminAuthService.uploadWithAdminAuth('/upload/image', formData);
     } else {
-      // Use regular user auth
-      const response = await api.post('/upload/image', formData, {
+      // Use proxy to avoid CORS
+      const response = await apiClient.post('/upload/image', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          // Don't set Content-Type - let axios set it with boundary
         },
       });
       return response.data;
@@ -26,9 +30,9 @@ export const uploadService = {
       formData.append('images', file);
     });
 
-    const response = await api.post('/upload/images', formData, {
+    const response = await apiClient.post('/upload/images', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        // Don't set Content-Type - let axios set it with boundary
       },
     });
     return response.data;
