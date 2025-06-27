@@ -5,8 +5,8 @@ import AdminLogin from './AdminLogin';
 
 export default function LoginModal({ onClose }) {
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('WinnieOmar@love.com');
+  const [password, setPassword] = useState('WinnieOmar2025');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
