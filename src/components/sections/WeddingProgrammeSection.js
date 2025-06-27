@@ -18,11 +18,11 @@ export default function WeddingProgrammeSection() {
               </div>
               <div className="flex items-center space-x-3">
                 <Clock className="h-5 w-5 text-teal-600" />
-                  <span className="text-gray-700">Time: 10:00 AM</span>
+                  <span className="text-gray-700">Time: 12:00 PM</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-teal-600" />
-                <span className="text-gray-700">Venue: The Olive Brook Church</span>
+                <span className="text-gray-700">Venue:Top Rank Hotel Galaxy, Utako</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Users className="h-5 w-5 text-teal-600" />

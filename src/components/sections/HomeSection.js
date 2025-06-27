@@ -1,9 +1,7 @@
 // File: src/components/sections/HomeSection.js
-import { useRouter } from 'next/router';
 import Image from 'next/image';
 
-export default function HomeSection() {
-  const router = useRouter();
+export default function HomeSection({ setActiveSection }) {
 
   return (
     <div className="relative h-screen">
@@ -25,7 +23,7 @@ export default function HomeSection() {
         <div className="w-24 h-1 bg-white rounded mb-8"></div>
         <p className="text-xl mb-12 max-w-2xl">Join us to celebrate the beginning of our journey together as husband and wife.</p>
         <button 
-          onClick={() => router.push('/about')}
+          onClick={() => setActiveSection('ourStory')}
           className="bg-white text-teal-900 px-8 py-3 rounded-md font-bold hover:bg-teal-100 transition-colors"
         >
           View Our Story

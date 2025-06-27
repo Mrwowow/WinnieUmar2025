@@ -33,7 +33,7 @@ export default function Home() {
       </Head>
 
       <Layout setActiveSection={setActiveSection}>
-        {activeSection === 'home' && <HomeSection />}
+        {activeSection === 'home' && <HomeSection setActiveSection={setActiveSection} />}
         {activeSection === 'ourStory' && <OurStorySection />}
         {activeSection === 'programme' && <WeddingProgrammeSection />}
         {activeSection === 'bridalParty' && <BridalPartySection />}

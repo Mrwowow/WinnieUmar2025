@@ -84,15 +84,18 @@ export default function GallerySection() {
 
   return (
     <div className="container mx-auto px-4 py-16">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold text-teal-800">Live Event Gallery</h2>
-        <button 
-          onClick={() => setShowUploadModal(true)} 
-          className="bg-teal-700 text-white px-4 py-2 rounded-md hover:bg-teal-800 transition-colors flex items-center"
-        >
-          <Camera className="h-5 w-5 mr-2" />
-          Add Photo
-        </button>
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-teal-800 text-center mb-4">Live Event Gallery</h2>
+        <p className="text-gray-600 text-center mb-6">Share your favorite moments from our special day!</p>
+        <div className="flex justify-center">
+          <button 
+            onClick={() => setShowUploadModal(true)} 
+            className="bg-teal-700 text-white px-6 py-3 rounded-lg hover:bg-teal-800 transition-colors flex items-center shadow-lg transform hover:scale-105 transition-transform"
+          >
+            <Camera className="h-6 w-6 mr-2" />
+            <span className="font-semibold">Add Your Photos</span>
+          </button>
+        </div>
       </div>
       
       {loading && page === 1 ? (
@@ -168,6 +171,15 @@ export default function GallerySection() {
           onPhotoAdded={handlePhotoAdded}
         />
       )}
+      
+      {/* Floating Action Button for Mobile */}
+      <button
+        onClick={() => setShowUploadModal(true)}
+        className="fixed bottom-6 right-6 bg-teal-700 text-white p-4 rounded-full shadow-lg hover:bg-teal-800 transition-colors transform hover:scale-110 transition-transform md:hidden z-40"
+        aria-label="Add photo"
+      >
+        <Camera className="h-6 w-6" />
+      </button>
     </div>
   );
 }

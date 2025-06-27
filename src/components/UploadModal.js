@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Camera, Upload } from 'lucide-react';
+import { X, Camera, Upload, Image as ImageIcon } from 'lucide-react';
 import { useCamera } from '../hooks/useCamera';
 import Image from 'next/image';
 import { galleryService } from '../services/galleryService';
@@ -109,20 +109,29 @@ export default function UploadModal({ onClose, onPhotoAdded }) {
                 <Camera className="h-16 w-16 text-gray-400" />
               )}
             </div>
-            <div className="flex space-x-4 w-full">
-              <button 
-                onClick={simulateTakePhoto} 
-                disabled={uploading}
-                className="flex-1 bg-teal-700 text-white px-4 py-2 rounded-md hover:bg-teal-800 transition-colors flex items-center justify-center disabled:bg-gray-400"
+            <div className="space-y-3 w-full">
+              {/* Mobile Camera Capture Button */}
+              <label 
+                className="w-full bg-teal-700 text-white px-4 py-3 rounded-md hover:bg-teal-800 transition-colors flex items-center justify-center cursor-pointer"
               >
                 <Camera className="h-5 w-5 mr-2" />
-                Take Photo
-              </button>
+                Take Photo with Camera
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  capture="camera"
+                  className="hidden" 
+                  onChange={handleFileUpload}
+                  disabled={uploading}
+                />
+              </label>
+              
+              {/* Choose from Gallery/Files Button */}
               <label 
-                className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors flex items-center justify-center cursor-pointer"
+                className="w-full bg-gray-200 text-gray-700 px-4 py-3 rounded-md hover:bg-gray-300 transition-colors flex items-center justify-center cursor-pointer"
               >
-                <Upload className="h-5 w-5 mr-2" />
-                Upload
+                <ImageIcon className="h-5 w-5 mr-2" />
+                Choose from Gallery
                 <input 
                   type="file" 
                   accept="image/*" 
@@ -131,6 +140,10 @@ export default function UploadModal({ onClose, onPhotoAdded }) {
                   disabled={uploading}
                 />
               </label>
+              
+              <p className="text-center text-sm text-gray-500 mt-2">
+                On mobile devices, &quot;Take Photo&quot; will open your camera directly
+              </p>
             </div>
           </div>
         ) : (
