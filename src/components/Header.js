@@ -41,6 +41,7 @@ export default function Header({ setActiveSection, setShowLoginModal }) {
     programme: {
       label: 'Programme',
       items: [
+        { label: 'Wedding Programme', section: 'programme' },
         { label: 'Traditional Wedding', section: 'traditional' },
         { label: 'Church Wedding', section: 'church' }
       ]

@@ -7,10 +7,13 @@ export default function MusicPlayer() {
   const audioRef = useRef(null);
 
   useEffect(() => {
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    
     // Create audio element and set properties
     if (audioRef.current) {
-      audioRef.current.addEventListener('play', () => setIsPlaying(true));
-      audioRef.current.addEventListener('pause', () => setIsPlaying(false));
+      audioRef.current.addEventListener('play', handlePlay);
+      audioRef.current.addEventListener('pause', handlePause);
       
       // Try to autoplay on component mount
       if (!autoplayAttempted) {
@@ -40,8 +43,8 @@ export default function MusicPlayer() {
     return () => {
       const audio = audioRef.current;
       if (audio) {
-        audio.removeEventListener('play', () => setIsPlaying(true));
-        audio.removeEventListener('pause', () => setIsPlaying(false));
+        audio.removeEventListener('play', handlePlay);
+        audio.removeEventListener('pause', handlePause);
       }
     };
   }, [autoplayAttempted]);

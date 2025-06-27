@@ -15,30 +15,34 @@ export default function GallerySection() {
   const [deleteLoading, setDeleteLoading] = useState({});
 
   useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        setLoading(true);
+        const response = await galleryService.getPhotos(page);
+        
+        if (page === 1) {
+          setPhotos(response.photos || []);
+        } else {
+          setPhotos(prev => [...prev, ...(response.photos || [])]);
+        }
+        
+        setHasMore(response.hasMore || false);
+      } catch (error) {
+        console.error('Error fetching gallery photos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (isLoggedIn) {
       fetchPhotos();
     } else {
       setLoading(false);
     }
-  }, [isLoggedIn, page, fetchPhotos]);
+  }, [isLoggedIn, page]);
 
-  const fetchPhotos = async () => {
-    try {
-      setLoading(true);
-      const response = await galleryService.getPhotos(page);
-      
-      if (page === 1) {
-        setPhotos(response.photos || []);
-      } else {
-        setPhotos(prev => [...prev, ...(response.photos || [])]);
-      }
-      
-      setHasMore(response.hasMore || false);
-    } catch (error) {
-      console.error('Error fetching gallery photos:', error);
-    } finally {
-      setLoading(false);
-    }
+  const loadMorePhotos = () => {
+    setPage(prev => prev + 1);
   };
 
   const handlePhotoAdded = (newPhoto) => {

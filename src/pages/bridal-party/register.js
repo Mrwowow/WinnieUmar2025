@@ -1,11 +1,18 @@
 // src/pages/bridal-party/register.js
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Layout from '../../components/Layout';
 import BridalPartyForm from '../../components/BridalPartyForm';
 
 export default function BridalPartyRegistration() {
+  const router = useRouter();
   const [activeSection] = useState('bridalParty');
+
+  const handleNavigation = (section) => {
+    // Navigate back to the main page with the selected section
+    router.push(`/?section=${section}`);
+  };
 
   return (
     <>
@@ -14,7 +21,7 @@ export default function BridalPartyRegistration() {
         <meta name="description" content="Register to be part of Omar & Winnie's wedding party" />
       </Head>
 
-      <Layout setActiveSection={() => {}}>
+      <Layout setActiveSection={handleNavigation}>
         <div className="py-12 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="mb-8 text-center">
