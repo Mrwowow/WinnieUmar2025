@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Heart, Crown, Flower, UserCheck } from 'lucide-react';
+import { Users, Heart, Crown, Flower, UserCheck, X, Mail, Phone } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { bridalPartyService } from '../../services/bridalPartyService';
@@ -10,6 +10,8 @@ export default function BridalPartySection() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [error, setError] = useState(null);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetchMembers();
@@ -101,7 +103,7 @@ export default function BridalPartySection() {
       'maid_of_honor': 'Maid of Honor',
       'best_man': 'Best Man',
       'bridesmaid': 'Bridesmaid',
-      'groomsman': 'Groomsman',
+      'groomsman': 'Groomsmen',
       'flower_girls': 'Flower Girl',
       'asoebi_girls': 'Asoebi Girl',
       'men_in_agbada': 'Men in Agbada'
@@ -225,7 +227,11 @@ export default function BridalPartySection() {
                   {groupedMembers[role].map((member, index) => (
                     <div 
                       key={member._id || index} 
-                      className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+                      className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                      onClick={() => {
+                        setSelectedMember(member);
+                        setShowModal(true);
+                      }}
                     >
                       <div className="aspect-w-3 aspect-h-4 bg-gray-100 relative h-64">
                         {member.imageUrl ? (
@@ -290,6 +296,107 @@ export default function BridalPartySection() {
           </span>
         </Link>
       </div>
+
+      {/* Member Details Modal */}
+      {showModal && selectedMember && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+              <h3 className="text-2xl font-bold text-teal-800">{selectedMember.name}</h3>
+              <button 
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedMember(null);
+                }}
+                className="text-gray-500 hover:text-gray-700 p-1"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Image Section */}
+                <div className="md:w-1/3">
+                  <div className="aspect-w-3 aspect-h-4 bg-gray-100 relative h-80 rounded-lg overflow-hidden">
+                    {selectedMember.imageUrl ? (
+                      <Image
+                        src={selectedMember.imageUrl}
+                        alt={selectedMember.name}
+                        layout="fill"
+                        objectFit="cover"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full bg-gradient-to-br from-teal-100 to-teal-200">
+                        <Users className="h-24 w-24 text-teal-600" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Details Section */}
+                <div className="md:w-2/3 space-y-4">
+                  <div className="flex items-center mb-4">
+                    {getRoleIcon(selectedMember.role)}
+                    <span className="ml-2 text-lg font-semibold text-gray-700">
+                      {getRoleLabel(selectedMember.role)}
+                    </span>
+                  </div>
+                  
+                  {selectedMember.email && (
+                    <div className="flex items-center text-gray-600">
+                      <Mail className="h-5 w-5 mr-2" />
+                      <a 
+                        href={`mailto:${selectedMember.email}`}
+                        className="hover:text-teal-600 transition-colors"
+                      >
+                        {selectedMember.email}
+                      </a>
+                    </div>
+                  )}
+                  
+                  {selectedMember.phone && (
+                    <div className="flex items-center text-gray-600">
+                      <Phone className="h-5 w-5 mr-2" />
+                      <a 
+                        href={`tel:${selectedMember.phone}`}
+                        className="hover:text-teal-600 transition-colors"
+                      >
+                        {selectedMember.phone}
+                      </a>
+                    </div>
+                  )}
+                  
+                  {selectedMember.maritalStatus && (
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-1">Marital Status</h4>
+                      <p className="text-gray-600 capitalize">{selectedMember.maritalStatus}</p>
+                    </div>
+                  )}
+                  
+                  {selectedMember.bio && (
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-2">About</h4>
+                      <p className="text-gray-700 leading-relaxed">{selectedMember.bio}</p>
+                    </div>
+                  )}
+                  
+                  {selectedMember.toast && (
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-2">Toast Message</h4>
+                      <div className="bg-teal-50 border-l-4 border-teal-400 p-4 rounded">
+                        <p className="text-gray-700 italic">
+                          &quot;{selectedMember.toast}&quot;
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
