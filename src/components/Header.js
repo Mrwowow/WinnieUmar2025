@@ -13,8 +13,7 @@ export default function Header({ setActiveSection, setShowLoginModal }) {
 
   const menuItems = [
     { label: 'Home', section: 'home' },
-    { label: 'About Him', section: 'aboutHim' },
-    { label: 'About Her', section: 'aboutHer' },
+    { label: 'Our Story', section: 'ourStory' },
     { label: 'Wedding Programme', section: 'programme' },
     { label: 'Bridal Party', section: 'bridalParty' },
     { label: 'Pre-wedding', section: 'preWedding' },

@@ -7,17 +7,18 @@ export default function MusicPlayer() {
   const audioRef = useRef(null);
 
   useEffect(() => {
+    const audio = audioRef.current;
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
     
     // Create audio element and set properties
-    if (audioRef.current) {
-      audioRef.current.addEventListener('play', handlePlay);
-      audioRef.current.addEventListener('pause', handlePause);
+    if (audio) {
+      audio.addEventListener('play', handlePlay);
+      audio.addEventListener('pause', handlePause);
       
       // Try to autoplay on component mount
       if (!autoplayAttempted) {
-        const playPromise = audioRef.current.play();
+        const playPromise = audio.play();
         
         if (playPromise !== undefined) {
           playPromise
@@ -30,7 +31,9 @@ export default function MusicPlayer() {
               console.log('Autoplay prevented, waiting for user interaction:', error);
               // Set up a one-time click handler to enable audio on first user interaction
               const enableAudio = () => {
-                audioRef.current.play().catch(e => console.error('Error playing audio:', e));
+                if (audioRef.current) {
+                  audioRef.current.play().catch(e => console.error('Error playing audio:', e));
+                }
                 document.removeEventListener('click', enableAudio);
               };
               document.addEventListener('click', enableAudio);
@@ -41,9 +44,9 @@ export default function MusicPlayer() {
     }
     
     return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('play', handlePlay);
-        audioRef.current.removeEventListener('pause', handlePause);
+      if (audio) {
+        audio.removeEventListener('play', handlePlay);
+        audio.removeEventListener('pause', handlePause);
       }
     };
   }, [autoplayAttempted]);

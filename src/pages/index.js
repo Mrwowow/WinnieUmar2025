@@ -3,8 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Layout from '../components/Layout';
 import HomeSection from '../components/sections/HomeSection';
-import AboutHimSection from '../components/sections/AboutHimSection';
-import AboutHerSection from '../components/sections/AboutHerSection';
+import OurStorySection from '../components/sections/OurStorySection';
 import WeddingProgrammeSection from '../components/sections/WeddingProgrammeSection';
 import BridalPartySection from '../components/sections/BridalPartySection';
 import TraditionalWeddingSection from '../components/sections/TraditionalWeddingSection';
@@ -35,8 +34,7 @@ export default function Home() {
 
       <Layout setActiveSection={setActiveSection}>
         {activeSection === 'home' && <HomeSection />}
-        {activeSection === 'aboutHim' && <AboutHimSection />}
-        {activeSection === 'aboutHer' && <AboutHerSection />}
+        {activeSection === 'ourStory' && <OurStorySection />}
         {activeSection === 'programme' && <WeddingProgrammeSection />}
         {activeSection === 'bridalParty' && <BridalPartySection />}
         {activeSection === 'traditional' && <TraditionalWeddingSection />}
